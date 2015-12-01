@@ -3,6 +3,9 @@ api_version: 1
 threadsafe: true
 
 handlers:
+- url: /admin/.*
+  script: admin.handlers
+
 - url: /
   static_files: index.html
   upload: index.html
