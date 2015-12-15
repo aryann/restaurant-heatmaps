@@ -25,23 +25,29 @@ class MainPageHandler(webapp2.RequestHandler):
 
         # Perform the search for the given location.
         index = search.Index(name=config.SEARCH_INDEX_NAME)
-        results = index.search(
-            query=search.Query(
-                query_string=(
-                    'distance(location, geopoint({lat}, {lon})) < 100000'.format(
-                        lat=lat, lon=lon)),
-                options=search.QueryOptions(
-                    returned_fields=[
-                        'location',
-                    ],
-                    limit=config.MAX_SEARCH_RESULTS)))
 
-        # Convert the search results to a JSON-serializable list that
-        # can be passed on to the JavaScript code in the template.
         places = []
-        for res in results:
-            value = res.fields[0].value
-            places.append((value.latitude, value.longitude))
+        cursor = search.Cursor()
+
+        while cursor:
+            results = index.search(
+                query=search.Query(
+                    query_string=(
+                        'distance(location, geopoint({lat}, {lon})) < 16000'.format(
+                            lat=lat, lon=lon)),
+                    options=search.QueryOptions(
+                        cursor=cursor,
+                        returned_fields=[
+                            'location',
+                        ],
+                        limit=config.MAX_SEARCH_RESULTS)))
+            cursor = results.cursor
+
+            # Convert the search results to a JSON-serializable list that
+            # can be passed on to the JavaScript code in the template.
+            for res in results:
+                value = res.fields[0].value
+                places.append((value.latitude, value.longitude))
 
         if config.DEBUG:
             debug = json.dumps({

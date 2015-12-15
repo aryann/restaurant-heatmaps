@@ -22,7 +22,7 @@ def get_all_places(lat, lon, radius):
                radius=radius,
                location=location)
     res = json.load(urllib2.urlopen(url))
-    logging.info('Num results: %d', len(res['results']))
+    logging.info('Num results from %s: %d', url, len(res['results']))
 
     places = []
 
@@ -86,7 +86,7 @@ class AddCityHandler(webapp2.RequestHandler):
         # TODO: This will not work in practice because App Engine
         # limits how long a request can take. Fix this by using Task
         # Queues for fetching places.
-        places = get_all_places(lat, lon, 10000)
+        places = get_all_places(lat, lon, 15000)
 
         index = search.Index(name=config.SEARCH_INDEX_NAME)
         for place in places:
