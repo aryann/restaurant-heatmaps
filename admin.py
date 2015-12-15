@@ -1,6 +1,9 @@
+import json
 import textwrap
 import urllib2
 import webapp2
+
+from google.appengine.api import search
 
 import config
 
@@ -41,11 +44,26 @@ class AddCityHandler(webapp2.RequestHandler):
                    key=config.PLACES_API_KEY,
                    location=location)
         res = urllib2.urlopen(url)
+        data = json.load(res)
 
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write(res.geturl())
         self.response.write('\n')
-        self.response.write(res.read())
+        self.response.write(json.dumps(data, indent=2))
+
+        index = search.Index(name=config.SEARCH_INDEX_NAME)
+
+        for place in data['results']:
+            location = place['geometry']['location']
+            doc = search.Document(
+                doc_id=place['place_id'],
+                fields=[
+                    search.GeoField(name='location',
+                                    value=search.GeoPoint(
+                                        latitude=location['lat'],
+                                        longitude=location['lng'])),
+            ])
+            index.put(doc)
 
 
 handlers = webapp2.WSGIApplication([
