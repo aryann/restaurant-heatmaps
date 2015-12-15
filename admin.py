@@ -50,4 +50,4 @@ class AddCityHandler(webapp2.RequestHandler):
 
 handlers = webapp2.WSGIApplication([
     ('/admin/addcity', AddCityHandler),
-], debug=True)
+], debug=config.DEBUG)
