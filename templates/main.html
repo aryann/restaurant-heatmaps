@@ -14,23 +14,31 @@
     </style>
   </head>
   <body>
+    {{debug}}
+
     <div id="map"></div>
     <script>
-      var seattle = {lat: 47.608013, lng: -122.335167};
-
       function initMap() {
-        var map, points;
-        points = [
-          new google.maps.LatLng(47.608013, -122.335167),
-        ];
+        var map, center, places, points, i;
+
+        center = {{'{'}}
+          lat: {{lat}},
+          lng: {{lon}}
+        {{'}'}};
+
+        places = {{places}};
+        points = [];
+        for (i = 0; i < places.length; i++) {
+          points.push(new google.maps.LatLng(places[i][0], places[i][1]));
+        }
 
         map = new google.maps.Map(document.getElementById('map'), {
-          center: seattle,
+          center: center,
           zoom: 12
         });
-
         new google.maps.visualization.HeatmapLayer({
           data: points,
+          radius: 12,
           map: map
         });
       }
