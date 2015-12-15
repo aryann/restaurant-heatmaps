@@ -28,7 +28,7 @@ class MainPageHandler(webapp2.RequestHandler):
         results = index.search(
             query=search.Query(
                 query_string=(
-                    'distance(location, geopoint({lat}, {lon})) < 10000'.format(
+                    'distance(location, geopoint({lat}, {lon})) < 100000'.format(
                         lat=lat, lon=lon)),
                 options=search.QueryOptions(
                     returned_fields=[
@@ -55,7 +55,7 @@ class MainPageHandler(webapp2.RequestHandler):
             'debug': debug,
             'lat': lat,
             'lon': lon,
-            'places': json.dumps(places),
+            'places': json.dumps(places, separators=(',', ':')),
         }))
 
 
