@@ -80,6 +80,7 @@ class HeatmapHandler(webapp2.RequestHandler):
             'lat': lat,
             'lon': lon,
             'places': json.dumps(places, separators=(',', ':')),
+            'maps_api_key': config.MAPS_API_KEY,
         }))
 
 

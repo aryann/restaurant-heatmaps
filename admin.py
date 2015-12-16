@@ -20,7 +20,7 @@ def get_all_places(lat, lon, radius):
     url = ('https://maps.googleapis.com/maps/api/place/radarsearch/'
            'json?key={key}&radius={radius}&location={location}&'
            'type=restaurant').format(
-               key=config.PLACES_API_KEY,
+               key=config.MAPS_API_KEY,
                radius=radius,
                location=location)
     res = json.load(urllib2.urlopen(url))

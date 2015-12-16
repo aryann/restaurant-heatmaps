@@ -21,10 +21,10 @@
       function initMap() {
         var map, center, places, points, i;
 
-        center = {{'{'}}
-          lat: {{lat}},
-          lng: {{lon}}
-        {{'}'}};
+        center = {{ '{' }}
+          lat: {{ lat }},
+          lng: {{ lon }}
+        {{ '}' }};
 
         places = {{places}};
         points = [];
@@ -42,9 +42,8 @@
           map: map
         });
       }
-
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKqLZqJwhRMAOnyogfkFDetkA0iEXtDbk&callback=initMap&libraries=visualization"
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ maps_api_key }}&callback=initMap&libraries=visualization"
             async defer></script>
 
   </body>
