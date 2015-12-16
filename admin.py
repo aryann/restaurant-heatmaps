@@ -6,9 +6,11 @@ import time
 import urllib2
 import webapp2
 
+from google.appengine.ext import ndb
 from google.appengine.api import search
 
 import config
+import models
 
 R_EARTH = 6378137.0
 
@@ -64,6 +66,10 @@ class AddCityHandler(webapp2.RequestHandler):
               <body>
                 <form method="post" action="">
                   <p>
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name">
+                  </p>
+                  <p>
                     <label for="latitude">Latitude:</label>
                     <input type="text" id="latitude" name="latitude">
                   </p>
@@ -80,8 +86,15 @@ class AddCityHandler(webapp2.RequestHandler):
         """))
 
     def post(self):
+        name = self.request.POST['name']
         lat = float(self.request.POST['latitude'])
         lon = float(self.request.POST['longitude'])
+
+        city = models.City(
+            id=name,
+            name=name,
+            location=ndb.GeoPt(lat=lat, lon=lon))
+        city.put()
 
         # TODO: This will not work in practice because App Engine
         # limits how long a request can take. Fix this by using Task

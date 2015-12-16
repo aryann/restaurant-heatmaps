@@ -4,9 +4,27 @@ import webapp2
 from google.appengine.api import search
 
 import config
+import models
 
 
 class MainPageHandler(webapp2.RequestHandler):
+
+    def get(self):
+        cities = []
+        for city in models.City.get_ordered_cities().fetch():
+            cities.append((
+                city.name,
+                'heatmap?lat={lat}&lon={lon}'.format(
+                    lat=city.location.lat,
+                    lon=city.location.lon)))
+
+        template = config.JINJA_ENVIRONMENT.get_template('main.html')
+        self.response.write(template.render({
+            'cities': cities,
+        }))
+
+
+class HeatmapHandler(webapp2.RequestHandler):
 
     def get(self):
         # Grab the lat and lon query parameters if they both exist and
@@ -56,7 +74,7 @@ class MainPageHandler(webapp2.RequestHandler):
         else:
             debug = ''
 
-        template = config.JINJA_ENVIRONMENT.get_template('main.html')
+        template = config.JINJA_ENVIRONMENT.get_template('heatmap.html')
         self.response.write(template.render({
             'debug': debug,
             'lat': lat,
@@ -67,4 +85,5 @@ class MainPageHandler(webapp2.RequestHandler):
 
 handlers = webapp2.WSGIApplication([
     ('/', MainPageHandler),
+    ('/heatmap', HeatmapHandler),
 ], debug=config.DEBUG)
