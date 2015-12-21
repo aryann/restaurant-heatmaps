@@ -66,6 +66,12 @@ class AddCityHandler(webapp2.RequestHandler):
               <body>
                 <form method="post" action="">
                   <p>
+                    <label for="woeid">
+                      <a href="https://en.wikipedia.org/wiki/GeoPlanet">WOEID</a>:
+                    </label>
+                    <input type="number" id="woeid" name="woeid">
+                  </p>
+                  <p>
                     <label for="name">Name:</label>
                     <input type="text" id="name" name="name">
                   </p>
@@ -86,14 +92,16 @@ class AddCityHandler(webapp2.RequestHandler):
         """))
 
     def post(self):
+        woeid = self.request.POST['woeid']
         name = self.request.POST['name']
         lat = float(self.request.POST['latitude'])
         lon = float(self.request.POST['longitude'])
 
         city = models.City(
-            id=name,
+            id=woeid,
             name=name,
-            location=ndb.GeoPt(lat=lat, lon=lon))
+            location=ndb.GeoPt(lat=lat, lon=lon),
+            ready=False)
         city.put()
 
         # TODO: This will not work in practice because App Engine
