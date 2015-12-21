@@ -76,16 +76,16 @@ class AddCityWorker(webapp2.RequestHandler):
         # AND there are more pages of results. This is a bug, and to
         # be safe, we use 190 as the cut off.
         if len(res['results']) >= 190:
-            logging.info('Dividing request to four smaller ones.')
+            logging.info('Dividing request into four smaller ones.')
 
-            dx = radius / 2.0 * math.cos(math.radians(45))
-            dy = radius / 2.0 * math.sin(math.radians(45))
+            radius_axis_projection = radius / 2.0 * math.sqrt(2)
+            d_lat = radius_axis_projection / R_EARTH * 180 / math.pi
+            d_lon = d_lat / math.cos(lat * math.pi / 180)
 
             for dir_x in (-1, 1):
                 for dir_y in (-1, 1):
-                    new_lat = lat + dir_y * (dy / R_EARTH * 180 / math.pi)
-                    new_lon = lon + dir_x * (dx / R_EARTH * 180 / math.pi /
-                                             math.cos(lat * math.pi / 180))
+                    new_lat = lat + dir_y * d_lat
+                    new_lon = lon + dir_x * d_lon
 
                     taskqueue.add(url='/admin/addcity/worker', params={
                         'lat': new_lat,
