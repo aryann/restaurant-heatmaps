@@ -1,28 +1,29 @@
-<!doctype html>
-<html>
-  <body>
-    <form method="post" action="">
-      <p>
-        <label for="woeid">
-          <a href="https://en.wikipedia.org/wiki/GeoPlanet">WOEID</a>:
-        </label>
-        <input type="number" id="woeid" name="woeid" {% if debug %}value="2490383"{% endif %}>
-      </p>
-      <p>
-        <label for="name">Name:</label>
+{% extends "base.html" %}
+
+{% block title %}Add New City{% endblock %}
+
+{% block body %}
+<form method="post" action="">
+  <p>
+    <label for="woeid">
+      <a href="https://en.wikipedia.org/wiki/GeoPlanet">WOEID</a>:
+    </label>
+    <input type="number" id="woeid" name="woeid" {% if debug %}value="2490383"{% endif %}>
+  </p>
+  <p>
+    <label for="name">Name:</label>
         <input type="text" id="name" name="name" {% if debug %}value="Seattle, WA"{% endif %}>
-      </p>
-      <p>
-        <label for="latitude">Latitude:</label>
-        <input type="text" id="latitude" name="latitude" {% if debug %}value="47.608013"{% endif %}>
-      </p>
-      <p>
-        <label for="longitude">Longitude:</label>
-        <input type="text" id="longitude" name="longitude" {% if debug %}value="-122.335167"{% endif %}>
-      </p>
-      <p>
-        <button type="submit">Add</button>
-      </p>
-    </form>
-  </body>
-</html>
+  </p>
+  <p>
+    <label for="latitude">Latitude:</label>
+    <input type="text" id="latitude" name="latitude" {% if debug %}value="47.608013"{% endif %}>
+  </p>
+  <p>
+    <label for="longitude">Longitude:</label>
+    <input type="text" id="longitude" name="longitude" {% if debug %}value="-122.335167"{% endif %}>
+  </p>
+  <p>
+    <button type="submit">Add</button>
+  </p>
+</form>
+{% endblock %}

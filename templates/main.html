@@ -1,35 +1,22 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <style>
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      #map {
-        height: 100%;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Cities</h1>
-    <ul>
-    {% for city, link in cities %}
-      <li><a href="{{ link }}">{{ city }}</a></li>
-    {% endfor %}
-    </ul>
+{% extends "base.html" %}
 
-    <h1>Don't see your city?</h1>
-    <p>Tell us about your city, and we'll add it!</p>
-    <form method="post" action="newcityrequest">
-      <p>
-	<label for="name">Name:</label>
-	<input type="text" id="name" name="name" />
-        <button type="submit">Add</button>
-      </p>
-    </form>
+{% block title %}City Heat Maps{% endblock %}
 
-  </body>
-</html>
+{% block body %}
+<h1>Cities</h1>
+<ul>
+  {% for city, link in cities %}
+  <li><a href="{{ link }}">{{ city }}</a></li>
+  {% endfor %}
+</ul>
+
+<h1>Don't see your city?</h1>
+<p>Tell us about your city, and we'll add it!</p>
+<form method="post" action="newcityrequest">
+  <p>
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" />
+    <button type="submit">Add</button>
+  </p>
+</form>
+{% endblock %}
