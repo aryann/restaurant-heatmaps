@@ -3,12 +3,13 @@ import logging
 import math
 import textwrap
 import time
-import urllib2
+import urlparse
 import webapp2
 
 from google.appengine.ext import ndb
 from google.appengine.api import search
 from google.appengine.api import taskqueue
+from google.appengine.api import urlfetch
 
 import config
 import models
@@ -41,7 +42,7 @@ class AddCityHandler(webapp2.RequestHandler):
             'lat': lat,
             'lon': lon,
             'radius': 15000,
-        })
+        }, queue_name='fetch-places')
 
         self.redirect('/')
 
@@ -62,7 +63,7 @@ class AddCityWorker(webapp2.RequestHandler):
                    location=location,
                    types='|'.join(config.PLACE_TYPES))
         logging.info('Requesting URL: %s', url)
-        res = json.load(urllib2.urlopen(url))
+        res = json.loads(urlfetch.fetch(url).content)
         logging.info('Num results for lat=%f, lon=%f, radius=%f: %d',
                      lat, lon, radius, len(res['results']))
 
@@ -91,7 +92,7 @@ class AddCityWorker(webapp2.RequestHandler):
                         'lat': new_lat,
                         'lon': new_lon,
                         'radius': radius / 2.0,
-                    })
+                    }, queue_name='fetch-places')
 
         # If number of results < 200, we did not hit any limits, so there
         # is no need to divide the area into smaller areas.
@@ -110,7 +111,28 @@ class AddCityWorker(webapp2.RequestHandler):
                 index.put(doc)
 
 
+class PopulateMemcacheHandler(webapp2.RequestHandler):
+
+    def get(self):
+        for city in models.City.get_ordered_cities().fetch():
+            taskqueue.add(url='/admin/populatememcache/worker', params={
+                'city': city.key.urlsafe(),
+            }, queue_name='populate-memcache')
+
+
+class PopulateMemcacheWorker(webapp2.RequestHandler):
+
+    def post(self):
+        original = urlparse.urlparse(self.request.url)
+        city_url = urlparse.urlunparse(
+            (original.scheme, original.netloc, '/heatmap',
+             '', 'city={0}'.format(self.request.get('city')), ''))
+        urlfetch.fetch(city_url)
+
+
 handlers = webapp2.WSGIApplication([
     ('/admin/addcity', AddCityHandler),
     ('/admin/addcity/worker', AddCityWorker),
+    ('/admin/populatememcache', PopulateMemcacheHandler),
+    ('/admin/populatememcache/worker', PopulateMemcacheWorker),
 ], debug=config.DEBUG)

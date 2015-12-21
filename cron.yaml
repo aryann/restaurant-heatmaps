@@ -1,0 +1,3 @@
+cron:
+- url: /admin/populatememcache
+  schedule: every 10 mins

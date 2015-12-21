@@ -1,3 +1,6 @@
 queue:
-- name: default
+- name: fetch-places
   rate: 1/s
+- name: populate-memcache
+  rate: 30/s
+  bucket_size: 1
