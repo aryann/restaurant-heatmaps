@@ -1,9 +1,11 @@
+import collections
 import httplib
 import json
 import webapp2
 
-from google.appengine.ext import ndb
+from google.appengine.api import memcache
 from google.appengine.api import search
+from google.appengine.ext import ndb
 
 import config
 import models
@@ -24,53 +26,66 @@ class MainPageHandler(webapp2.RequestHandler):
         }))
 
 
+CacheEntry = collections.namedtuple(
+    'CacheEntry', ['city', 'places_json'])
+
 class HeatmapHandler(webapp2.RequestHandler):
 
     def get(self):
-        city = ndb.Key(urlsafe=self.request.GET['city']).get()
-        lat, lon = city.location.lat, city.location.lon
+        city_key = ndb.Key(urlsafe=self.request.GET['city'])
+        cache_entry = memcache.get(city_key.id())
 
-        # Perform the search for the given location.
-        index = search.Index(name=config.SEARCH_INDEX_NAME)
+        if cache_entry:
+            city = cache_entry.city
 
-        places = []
-        cursor = search.Cursor()
+            # It's cheaper to pickle a JSON string than it is to
+            # pickle a Python list. Since Memcache has a limit of 1 MB
+            # per entry, it's important to save as many bits as
+            # possible, so we don't have to write more complex fan-out
+            # logic.
+            places_json = cache_entry.places_json
 
-        while cursor:
-            results = index.search(
-                query=search.Query(
-                    query_string=(
-                        'distance(location, geopoint({lat}, {lon})) < 16000'.format(
-                            lat=lat, lon=lon)),
-                    options=search.QueryOptions(
-                        cursor=cursor,
-                        returned_fields=[
-                            'location',
-                        ],
-                        limit=config.MAX_SEARCH_RESULTS)))
-            cursor = results.cursor
-
-            # Convert the search results to a JSON-serializable list that
-            # can be passed on to the JavaScript code in the template.
-            for res in results:
-                value = res.fields[0].value
-                places.append((value.latitude, value.longitude))
-
-        if config.DEBUG:
-            debug = json.dumps({
-                'num_found': results.number_found,
-                'len_places': len(places),
-            })
         else:
-            debug = ''
+            city = city_key.get()
+
+            # Perform the search for the given location.
+            index = search.Index(name=config.SEARCH_INDEX_NAME)
+
+            places = []
+            cursor = search.Cursor()
+
+            while cursor:
+                results = index.search(
+                    query=search.Query(
+                        query_string=(
+                            'distance(location, geopoint({lat}, {lon})) < 16000'.format(
+                                lat=city.location.lat, lon=city.location.lon)),
+                        options=search.QueryOptions(
+                            cursor=cursor,
+                            returned_fields=[
+                                'location',
+                            ],
+                            limit=config.MAX_SEARCH_RESULTS)))
+                cursor = results.cursor
+
+                # Convert the search results to a JSON-serializable list that
+                # can be passed on to the JavaScript code in the template.
+                for res in results:
+                    value = res.fields[0].value
+                    places.append((value.latitude, value.longitude))
+
+            places_json = json.dumps(places, separators=(',', ':'))
+            memcache.add(
+                city_key.id(),
+                value=CacheEntry(city=city, places_json=places_json),
+                time=60*60*24)  # Live for 24h.
 
         template = config.JINJA_ENVIRONMENT.get_template('heatmap.html')
         self.response.write(template.render({
             'name': city.name,
-            'debug': debug,
-            'lat': lat,
-            'lon': lon,
-            'places': json.dumps(places, separators=(',', ':')),
+            'lat': city.location.lat,
+            'lon':  city.location.lon,
+            'places': places_json,
             'maps_api_key': config.MAPS_API_KEY,
         }))
 
