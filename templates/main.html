@@ -2,15 +2,37 @@
 
 {% block title %}City Heat Maps{% endblock %}
 
+{% block style %}
+body {
+
+}
+h1 {
+  background-color: lightgrey;
+  font-size: 3em;
+}
+
+h2 {
+  background-color: lightblue;
+  font-size: 2em;
+}
+
+{% endblock %}
+
 {% block body %}
-<h1>Cities</h1>
+<h1>City Heat Maps</h1>
+<p>
+  View heat maps of restaurants, bars, and coffee shops for your
+  favorite city.
+</p>
+
+<h2>Cities</h2>
 <ul>
   {% for city, link in cities %}
   <li><a href="{{ link }}">{{ city }}</a></li>
   {% endfor %}
 </ul>
 
-<h1>Don't see your city?</h1>
+<h2>Don't see your city?</h2>
 <p>Tell us about your city, and we'll add it!</p>
 <form method="post" action="newcityrequest">
   <p>
