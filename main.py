@@ -29,7 +29,7 @@ class HeatmapHandler(webapp2.RequestHandler):
     def get(self):
         # Grab the lat and lon query parameters if they both exist and
         # if they can both be parsed as floats.
-        lat, lon = self.request.get('latitude'), self.request.get('longitude')
+        lat, lon = self.request.get('lat'), self.request.get('lon')
         try:
             lat = float(lat)
             lon = float(lon)
