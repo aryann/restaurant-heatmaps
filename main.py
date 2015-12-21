@@ -2,6 +2,7 @@ import httplib
 import json
 import webapp2
 
+from google.appengine.ext import ndb
 from google.appengine.api import search
 
 import config
@@ -15,9 +16,7 @@ class MainPageHandler(webapp2.RequestHandler):
         for city in models.City.get_ordered_cities().fetch():
             cities.append((
                 city.name,
-                'heatmap?lat={lat}&lon={lon}'.format(
-                    lat=city.location.lat,
-                    lon=city.location.lon)))
+                'heatmap?city={0}'.format(city.key.urlsafe())))
 
         template = config.JINJA_ENVIRONMENT.get_template('main.html')
         self.response.write(template.render({
@@ -28,19 +27,8 @@ class MainPageHandler(webapp2.RequestHandler):
 class HeatmapHandler(webapp2.RequestHandler):
 
     def get(self):
-        # Grab the lat and lon query parameters if they both exist and
-        # if they can both be parsed as floats.
-        lat, lon = self.request.get('lat'), self.request.get('lon')
-        try:
-            lat = float(lat)
-            lon = float(lon)
-        except ValueError:
-            lat, lon = None, None
-
-        # We could get the latitude and longitude from the query
-        # params, so fall back to default location.
-        if not lat or not lon:
-            lat, lon = config.DEFAULT_LAT_LON
+        city = ndb.Key(urlsafe=self.request.GET['city']).get()
+        lat, lon = city.location.lat, city.location.lon
 
         # Perform the search for the given location.
         index = search.Index(name=config.SEARCH_INDEX_NAME)
@@ -78,6 +66,7 @@ class HeatmapHandler(webapp2.RequestHandler):
 
         template = config.JINJA_ENVIRONMENT.get_template('heatmap.html')
         self.response.write(template.render({
+            'name': city.name,
             'debug': debug,
             'lat': lat,
             'lon': lon,

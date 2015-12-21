@@ -3,8 +3,6 @@ import os
 import jinja2
 
 
-DEFAULT_LAT_LON = (47.608013, -122.335167)  # Seattle, WA
-
 DEBUG = True
 
 MAPS_API_KEY = 'AIzaSyBKqLZqJwhRMAOnyogfkFDetkA0iEXtDbk'
