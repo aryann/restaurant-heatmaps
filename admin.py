@@ -59,37 +59,8 @@ def get_all_places(lat, lon, radius):
 class AddCityHandler(webapp2.RequestHandler):
 
     def get(self):
-        self.response.headers['Content-Type'] = 'text/html'
-        self.response.write(textwrap.dedent("""\
-            <!doctype html>
-            <html>
-              <body>
-                <form method="post" action="">
-                  <p>
-                    <label for="woeid">
-                      <a href="https://en.wikipedia.org/wiki/GeoPlanet">WOEID</a>:
-                    </label>
-                    <input type="number" id="woeid" name="woeid">
-                  </p>
-                  <p>
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name">
-                  </p>
-                  <p>
-                    <label for="latitude">Latitude:</label>
-                    <input type="text" id="latitude" name="latitude">
-                  </p>
-                  <p>
-                    <label for="longitude">Longitude:</label>
-                    <input type="text" id="longitude" name="longitude">
-                  </p>
-                  <p>
-                    <button type="submit">Add</button>
-                  </p>
-                </form>
-              </body>
-            </html>
-        """))
+        template = config.JINJA_ENVIRONMENT.get_template('add_city.html')
+        self.response.write(template.render())
 
     def post(self):
         woeid = self.request.POST['woeid']
