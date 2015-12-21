@@ -5,6 +5,7 @@ threadsafe: true
 handlers:
 - url: /admin/.*
   script: admin.handlers
+  login: admin
 
 - url: /.*
   script: main.handlers
