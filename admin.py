@@ -66,11 +66,16 @@ class AddCityWorker(webapp2.RequestHandler):
         logging.info('Num results for lat=%f, lon=%f, radius=%f: %d',
                      lat, lon, radius, len(res['results']))
 
-        # If number of results >= 200, then that means we hit the Radar
+        # If number of results >= 190, then that means we hit the Radar
         # Search's result limit, so we continue by dividing the geographic
         # search location into four smaller areas, and sending separate
         # requests for each area.
-        if len(res['results']) >= 200:
+        #
+        # Note that the API advertises a page size limit of 200. In
+        # practice, however, sometimes a page can have <200 results
+        # AND there are more pages of results. This is a bug, and to
+        # be safe, we use 190 as the cut off.
+        if len(res['results']) >= 190:
             logging.info('Dividing request to four smaller ones.')
 
             dx = radius / 2.0 * math.cos(math.radians(45))
