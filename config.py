@@ -19,3 +19,12 @@ JINJA_ENVIRONMENT = jinja2.Environment(
         'jinja2.ext.autoescape',
     ],
     autoescape=True)
+
+# These are the types of places we display on the heat maps. The list
+# of supported place types is defined at
+# https://developers.google.com/places/supported_types#table1.
+PLACE_TYPES = [
+    'bar',
+    'cafe',
+    'restaurant',
+]

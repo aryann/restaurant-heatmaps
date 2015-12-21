@@ -56,10 +56,12 @@ class AddCityWorker(webapp2.RequestHandler):
         location = '{0},{1}'.format(lat, lon)
         url = ('https://maps.googleapis.com/maps/api/place/radarsearch/'
                'json?key={key}&radius={radius}&location={location}&'
-               'type=restaurant').format(
+               'type={types}').format(
                    key=config.MAPS_API_KEY,
                    radius=radius,
-                   location=location)
+                   location=location,
+                   types='|'.join(config.PLACE_TYPES))
+        logging.info('Requesting URL: %s', url)
         res = json.load(urllib2.urlopen(url))
         logging.info('Num results for lat=%f, lon=%f, radius=%f: %d',
                      lat, lon, radius, len(res['results']))

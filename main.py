@@ -70,6 +70,7 @@ class HeatmapHandler(webapp2.RequestHandler):
         if config.DEBUG:
             debug = json.dumps({
                 'num_found': results.number_found,
+                'len_places': len(places),
             })
         else:
             debug = ''
