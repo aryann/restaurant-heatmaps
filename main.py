@@ -77,8 +77,7 @@ class HeatmapHandler(webapp2.RequestHandler):
             places_json = json.dumps(places, separators=(',', ':'))
             memcache.add(
                 city_key.id(),
-                value=CacheEntry(city=city, places_json=places_json),
-                time=60*60*24)  # Live for 24h.
+                value=CacheEntry(city=city, places_json=places_json))
 
         template = config.JINJA_ENVIRONMENT.get_template('heatmap.html')
         self.response.write(template.render({
