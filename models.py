@@ -10,3 +10,8 @@ class City(ndb.Model):
     @classmethod
     def get_ordered_cities(cls):
         return cls.query().order(cls.name)
+
+
+class CityAddRequest(ndb.Model):
+    name = ndb.StringProperty(required=True)
+    created = ndb.DateTimeProperty(auto_now_add=True)

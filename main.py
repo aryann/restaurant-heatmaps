@@ -1,3 +1,4 @@
+import httplib
 import json
 import webapp2
 
@@ -85,7 +86,21 @@ class HeatmapHandler(webapp2.RequestHandler):
         }))
 
 
+class NewCityRequestHandler(webapp2.RequestHandler):
+
+    def post(self):
+        name = self.request.POST['name']
+        if not name:
+            self.response.write("I'm going to need a non-empty name.\n")
+            self.response.set_status(httplib.BAD_REQUEST)
+            return
+
+        models.CityAddRequest(name=name).put()
+        self.response.write("Thanks! We're on it.\n")
+
+
 handlers = webapp2.WSGIApplication([
     ('/', MainPageHandler),
     ('/heatmap', HeatmapHandler),
+    ('/newcityrequest', NewCityRequestHandler),
 ], debug=config.DEBUG)
