@@ -74,7 +74,7 @@ class ModifyCityHandler(webapp2.RequestHandler):
             taskqueue.add(url='/admin/modifycity/worker', params={
                 'lat': lat,
                 'lon': lon,
-                'radius': 15000,
+                'radius': config.SEARCH_RADIUS_METERS,
             }, queue_name='fetch-places')
 
         self.redirect('/admin/')
@@ -144,6 +144,18 @@ class ModifyCityWorker(webapp2.RequestHandler):
                 index.put(doc)
 
 
+class RefreshAllCitiesHandler(webapp2.RequestHandler):
+
+    def post(self):
+        for city in models.City.get_ordered_cities().fetch():
+            taskqueue.add(url='/admin/modifycity/worker', params={
+                'lat': city.location.lat,
+                'lon': city.location.lon,
+                'radius': config.SEARCH_RADIUS_METERS,
+            }, queue_name='fetch-places')
+        self.redirect('/admin/')
+
+
 class PopulateMemcacheHandler(webapp2.RequestHandler):
 
     def get(self):
@@ -167,6 +179,7 @@ handlers = webapp2.WSGIApplication([
     ('/admin/', ListCitiesHandler),
     ('/admin/modifycity', ModifyCityHandler),
     ('/admin/modifycity/worker', ModifyCityWorker),
+    ('/admin/refreshallcities', RefreshAllCitiesHandler),
     ('/admin/populatememcache', PopulateMemcacheHandler),
     ('/admin/populatememcache/worker', PopulateMemcacheWorker),
 ], debug=config.DEBUG)

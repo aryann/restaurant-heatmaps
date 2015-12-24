@@ -26,3 +26,5 @@ PLACE_TYPES = [
     'cafe',
     'restaurant',
 ]
+
+SEARCH_RADIUS_METERS = 20000
