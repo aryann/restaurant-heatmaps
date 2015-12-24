@@ -2,5 +2,5 @@ queue:
 - name: fetch-places
   rate: 3/s
 - name: populate-memcache
-  rate: 30/s
+  rate: 10/m
   bucket_size: 1
