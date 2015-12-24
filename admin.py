@@ -79,7 +79,7 @@ class AddCityWorker(webapp2.RequestHandler):
         if len(res['results']) >= 190:
             logging.info('Dividing request into four smaller ones.')
 
-            radius_axis_projection = radius / 2.0 * math.sqrt(2)
+            radius_axis_projection = radius / (2.0 * math.sqrt(2))
             d_lat = radius_axis_projection / R_EARTH * 180 / math.pi
             d_lon = d_lat / math.cos(lat * math.pi / 180)
 
