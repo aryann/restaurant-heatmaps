@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}List Cities{% endblock %}
+
+{% block body %}
+<ul>
+  <li>Modify an existing city:
+    <ul>
+      {% for city, link in cities %}
+      <li><a href="{{ link }}">{{ city }}</a></li>
+      {% endfor %}
+    </ul>
+  </li>
+  <li><a href="modifycity">Add a new city.</a></li>
+</ul>
+{% endblock %}

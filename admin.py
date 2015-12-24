@@ -16,14 +16,46 @@ import models
 
 R_EARTH = 6378137.0
 
-
-class AddCityHandler(webapp2.RequestHandler):
+class ListCitiesHandler(webapp2.RequestHandler):
 
     def get(self):
-        template = config.JINJA_ENVIRONMENT.get_template('add_city.html')
+        cities = []
+        for city in models.City.get_ordered_cities().fetch():
+            cities.append((
+                city.name,
+                'modifycity?city={0}'.format(city.key.urlsafe())))
+        template = config.JINJA_ENVIRONMENT.get_template('list_cities.html')
         self.response.write(template.render({
-            'debug': config.DEBUG,
+            'cities': cities,
         }))
+
+
+class ModifyCityHandler(webapp2.RequestHandler):
+
+    def get(self):
+        city_query_param = self.request.get('city')
+
+        if city_query_param:
+            city_key = ndb.Key(urlsafe=city_query_param)
+            city = city_key.get()
+            context = {
+                'woeid': city.key.id(),
+                'name': city.name,
+                'lat': city.location.lat,
+                'lon': city.location.lon,
+            }
+        elif config.DEBUG:
+            context = {
+                'woeid': 2490383,
+                'name': 'Seattle, WA, USA',
+                'lat': 47.608013,
+                'lon': -122.335167,
+            }
+        else:
+            context = {}
+
+        template = config.JINJA_ENVIRONMENT.get_template('modify_city.html')
+        self.response.write(template.render(context))
 
     def post(self):
         woeid = self.request.POST['woeid']
@@ -38,16 +70,17 @@ class AddCityHandler(webapp2.RequestHandler):
             ready=False)
         city.put()
 
-        taskqueue.add(url='/admin/addcity/worker', params={
-            'lat': lat,
-            'lon': lon,
-            'radius': 15000,
-        }, queue_name='fetch-places')
+        if self.request.get('getdata'):
+            taskqueue.add(url='/admin/modifycity/worker', params={
+                'lat': lat,
+                'lon': lon,
+                'radius': 15000,
+            }, queue_name='fetch-places')
 
-        self.redirect('/')
+        self.redirect('/admin/')
 
 
-class AddCityWorker(webapp2.RequestHandler):
+class ModifyCityWorker(webapp2.RequestHandler):
 
     def post(self):
         lat = float(self.request.get('lat'))
@@ -88,7 +121,7 @@ class AddCityWorker(webapp2.RequestHandler):
                     new_lat = lat + dir_y * d_lat
                     new_lon = lon + dir_x * d_lon
 
-                    taskqueue.add(url='/admin/addcity/worker', params={
+                    taskqueue.add(url='/admin/modifycity/worker', params={
                         'lat': new_lat,
                         'lon': new_lon,
                         'radius': radius / 2.0,
@@ -131,8 +164,9 @@ class PopulateMemcacheWorker(webapp2.RequestHandler):
 
 
 handlers = webapp2.WSGIApplication([
-    ('/admin/addcity', AddCityHandler),
-    ('/admin/addcity/worker', AddCityWorker),
+    ('/admin/', ListCitiesHandler),
+    ('/admin/modifycity', ModifyCityHandler),
+    ('/admin/modifycity/worker', ModifyCityWorker),
     ('/admin/populatememcache', PopulateMemcacheHandler),
     ('/admin/populatememcache/worker', PopulateMemcacheWorker),
 ], debug=config.DEBUG)
