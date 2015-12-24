@@ -1,7 +1,7 @@
 runtime: python27
 api_version: 1
 threadsafe: true
-version: 20151221-rc01
+version: 20151224-rc00
 
 handlers:
 - url: /admin/.*
