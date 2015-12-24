@@ -3,7 +3,7 @@ import os
 import jinja2
 
 
-DEBUG = True
+DEBUG = False
 
 MAPS_API_KEY = 'AIzaSyBKqLZqJwhRMAOnyogfkFDetkA0iEXtDbk'
 
