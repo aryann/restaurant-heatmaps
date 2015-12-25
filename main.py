@@ -58,8 +58,10 @@ class HeatmapHandler(webapp2.RequestHandler):
                 results = index.search(
                     query=search.Query(
                         query_string=(
-                            'distance(location, geopoint({lat}, {lon})) < 16000'.format(
-                                lat=city.location.lat, lon=city.location.lon)),
+                            'distance(location, geopoint({lat}, {lon})) < {search_radius}'.format(
+                                lat=city.location.lat,
+                                lon=city.location.lon,
+                                search_radius=config.SEARCH_RADIUS_METERS)),
                         options=search.QueryOptions(
                             cursor=cursor,
                             returned_fields=[
