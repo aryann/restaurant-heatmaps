@@ -20,7 +20,7 @@ class ListCitiesHandler(webapp2.RequestHandler):
 
     def get(self):
         cities = []
-        for city in models.City.get_ordered_cities().fetch():
+        for city in models.City.get_all_cities().fetch():
             cities.append((
                 city.name,
                 'modifycity?city={0}'.format(city.key.urlsafe())))
@@ -149,7 +149,7 @@ class ModifyCityWorker(webapp2.RequestHandler):
 class RefreshAllCitiesHandler(webapp2.RequestHandler):
 
     def post(self):
-        for city in models.City.get_ordered_cities().fetch():
+        for city in models.City.get_all_cities().fetch():
             taskqueue.add(url='/admin/modifycity/worker', params={
                 'lat': city.location.lat,
                 'lon': city.location.lon,
@@ -161,7 +161,7 @@ class RefreshAllCitiesHandler(webapp2.RequestHandler):
 class PopulateMemcacheHandler(webapp2.RequestHandler):
 
     def get(self):
-        for city in models.City.get_ordered_cities().fetch():
+        for city in models.City.get_all_cities().fetch():
             taskqueue.add(url='/admin/populatememcache/worker', params={
                 'city': city.key.urlsafe(),
             }, queue_name='populate-memcache')

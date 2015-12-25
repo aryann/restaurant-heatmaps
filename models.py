@@ -8,7 +8,11 @@ class City(ndb.Model):
     ready = ndb.BooleanProperty(required=True)
 
     @classmethod
-    def get_ordered_cities(cls):
+    def get_ready_cities(cls):
+        return cls.query(City.ready == True).order(cls.name)
+
+    @classmethod
+    def get_all_cities(cls):
         return cls.query().order(cls.name)
 
 

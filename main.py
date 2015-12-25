@@ -15,7 +15,7 @@ class MainPageHandler(webapp2.RequestHandler):
 
     def get(self):
         cities = []
-        for city in models.City.get_ordered_cities().fetch():
+        for city in models.City.get_ready_cities().fetch():
             cities.append((
                 city.name,
                 'heatmap?city={0}'.format(city.key.urlsafe())))
