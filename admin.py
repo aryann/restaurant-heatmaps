@@ -43,6 +43,7 @@ class ModifyCityHandler(webapp2.RequestHandler):
                 'name': city.name,
                 'lat': city.location.lat,
                 'lon': city.location.lon,
+                'ready': city.ready,
             }
         elif config.DEBUG:
             context = {
@@ -50,6 +51,7 @@ class ModifyCityHandler(webapp2.RequestHandler):
                 'name': 'Seattle, WA, USA',
                 'lat': 47.608013,
                 'lon': -122.335167,
+                'ready': False,
             }
         else:
             context = {}
@@ -67,7 +69,7 @@ class ModifyCityHandler(webapp2.RequestHandler):
             id=woeid,
             name=name,
             location=ndb.GeoPt(lat=lat, lon=lon),
-            ready=False)
+            ready=bool(self.request.get('ready')))
         city.put()
 
         if self.request.get('getdata'):
