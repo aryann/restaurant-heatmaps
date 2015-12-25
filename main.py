@@ -27,7 +27,16 @@ class MainPageHandler(webapp2.RequestHandler):
 
 
 CacheEntry = collections.namedtuple(
-    'CacheEntry', ['city', 'places_json'])
+    'CacheEntry', ['city', 'places'])
+
+def serialize_places_for_memcache(places):
+    return ';'.join('{0},{1}'.format(lat, lon) for lat, lon in places)
+
+
+def deserialize_places_from_memcache(places):
+    return [tuple(float(val) for val in place.split(','))
+            for place in places.split(';')]
+
 
 class HeatmapHandler(webapp2.RequestHandler):
 
@@ -38,12 +47,10 @@ class HeatmapHandler(webapp2.RequestHandler):
         if cache_entry:
             city = cache_entry.city
 
-            # It's cheaper to pickle a JSON string than it is to
-            # pickle a Python list. Since Memcache has a limit of 1 MB
-            # per entry, it's important to save as many bits as
-            # possible, so we don't have to write more complex fan-out
-            # logic.
-            places_json = cache_entry.places_json
+            # It's better to perform custom serialization than to
+            # rely on Python pickling because Memcache has a limit of
+            # 1 MB per entry.
+            places = deserialize_places_from_memcache(cache_entry.places)
 
         else:
             city = city_key.get()
@@ -76,17 +83,18 @@ class HeatmapHandler(webapp2.RequestHandler):
                     value = res.fields[0].value
                     places.append((value.latitude, value.longitude))
 
-            places_json = json.dumps(places, separators=(',', ':'))
             memcache.add(
                 city_key.id(),
-                value=CacheEntry(city=city, places_json=places_json))
+                value=CacheEntry(
+                    city=city,
+                    places=serialize_places_for_memcache(places)))
 
         template = config.JINJA_ENVIRONMENT.get_template('heatmap.html')
         self.response.write(template.render({
             'name': city.name,
             'lat': city.location.lat,
             'lon':  city.location.lon,
-            'places': places_json,
+            'places': json.dumps(places, separators=(',', ':')),
             'maps_api_key': config.MAPS_API_KEY,
         }))
 
