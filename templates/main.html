@@ -4,16 +4,49 @@
 
 {% block style %}
 body {
-
+  font-family: 'Helvetica Neue', Helvetica, Arial, san-serif;
 }
+
 h1 {
-  background-color: lightgrey;
+  font-weight: normal;
   font-size: 3em;
+  padding: 10px 15px;
+  background-color: lightgrey;
+  border-bottom: 1px solid grey;
 }
 
 h2 {
-  background-color: lightblue;
+  font-weight: normal;
   font-size: 2em;
+  padding: 10px 15px;
+  background-color: lightblue;
+  border-bottom: 1px solid blue;
+}
+
+p {
+  font-size: 1.5em;
+  padding: 10px 15px;
+}
+
+form {
+  padding: 0 15px;
+}
+
+button, input {
+  font-size: 1.5em;
+}
+
+ul {
+  margin: 10px 15px;
+}
+
+li a {
+  font-size: 1.5em;
+  background-color: yellow;
+}
+
+li {
+  margin-bottom: 15px;
 }
 
 {% endblock %}
@@ -35,10 +68,7 @@ h2 {
 <h2>Don't see your city?</h2>
 <p>Tell us about your city, and we'll add it!</p>
 <form method="post" action="newcityrequest">
-  <p>
-    <label for="name">Name:</label>
-    <input type="text" id="name" name="name" />
+    <input type="text" id="name" name="name" placeholder="City name" />
     <button type="submit">Add</button>
-  </p>
 </form>
 {% endblock %}
